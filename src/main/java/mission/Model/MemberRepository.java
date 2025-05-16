@@ -2,25 +2,32 @@ package mission.Model;
 
 import mission.Model.Member;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class MemberRepository {
-    private final Map<String, Member> members = new HashMap<>();
+    private final Map<String, List<Member>> membersBySuffix = new HashMap<>();
 
-    public void register(String name, String phoneNumber){
-        members.put(phoneNumber, new Member(name,phoneNumber));
+    public void save(Member member) {
+        String suffix = member.getPhoneSuffix();
+
+        membersBySuffix.putIfAbsent(suffix, new ArrayList<>());
+        membersBySuffix.get(suffix).add(member);
     }
 
-    public Member searchPhoneNumber(String lastNumber) throws Exception {
-        return members.values().stream().filter(m->m.getPhoneNumber().endsWith(lastNumber)).findFirst().orElseThrow(()-> new MemberException(lastNumber + "  not found."));
+    public List<Member> findByPhoneSuffix(String suffix){
+        return membersBySuffix.getOrDefault(suffix, new ArrayList<>());
     }
 
-    private static class MemberException extends RuntimeException {
-        public MemberException(String s) {
-            super(s);
+    public Optional<Member> findByPhoneSuffixAndName(String suffix, String name){
+        List<Member> candidates = findByPhoneSuffix(suffix);
+        for(Member m : candidates){
+            if(m.getName().equals(name)){
+                return Optional.of(m);
+            }
         }
+        return Optional.empty();
+        }
+    public boolean exists(String suffix, String name){
+        return findByPhoneSuffixAndName(suffix, name).isPresent();
     }
 }

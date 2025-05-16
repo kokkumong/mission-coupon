@@ -1,8 +1,9 @@
 package mission.Controller;
 
+import mission.View.InputView;
 import mission.Model.Member;
-import mission.View.View;
 
 public class MemberController {
+
 
 }
